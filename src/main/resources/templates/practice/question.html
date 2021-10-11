@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<script>
+    $(document).ready(function () {
+        // Ajax request csrf
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $(document).ajaxSend(function(e, xhr, options) {
+            xhr.setRequestHeader(header, token);
+        });
+
+        $('#btn-exit').click(function () {
+            location.assign("/quiz/home");
+        })
+
+        const imageQuestion = $("#image-ques")
+        if ((imageQuestion.attr('src') === "") || (imageQuestion.attr('src') === " ")) {
+            imageQuestion.hide();
+        } else {
+            imageQuestion.show();
+        }
+        const orderField= $('#order')
+        orderField.text(`${order}/${listQuestion.length}`);
+        $('#score').text(point);
+        const countdown = $('#time');
+        let time = parseInt(countdown.val()) - 1;
+        const timer = () => {
+            if (time <= 0) {
+                clearInterval(countdownQuestion);
+                $("button[data-is-correct=true]").css("background-color", "#7BCD67FF")
+                $('.answer-select').off('click')
+                countdown.css("background-color", "#C22828FF")
+                countdown.html('Time out!!!')
+                $('#answer-field').show();
+                $('#alert-waiting').hide();
+                setTimeout(function() {
+                    savePoint();
+                }, 2000);
+                clearInterval(countdownQuestion);
+            } else {
+                countdown.html(time)
+                time--;
+            }
+        };
+        const countdownQuestion = setInterval(timer, 1000);
+        $('.answer-select').click(function () {
+            clearInterval(countdownQuestion);
+            // console.log("time: " + time)
+            // console.log("count: " + parseInt(countdown.val()))
+            const selector = $(this)
+            const isCorrect = selector.data('is-correct')
+            if (isCorrect) {
+                point+= time*10;
+                correct++;
+                selector.css("background-color", "#7BCD67FF")
+            } else  {
+                selector.css("background-color", "#C22828FF")
+                $("button[data-is-correct=true]").css("background-color", "#7BCD67FF")
+            }
+
+            setTimeout(function() {
+                savePoint();
+            }, 2000);
+        })
+    })
+</script>
+    <div class="row">
+        <div class="col-sm-2">
+            <button type="button" disabled id="order" class="btn btn-dark mr-3" style="background-color: #500030;border-color: #500030;">1/10</button>
+            <button type="button" disabled id="score" class="btn btn-light pl-4 pr-4">0</button>
+        </div>
+        <div class="col-sm-8" style="text-align: center;">
+            <button type="button" disabled id="time" th:value="${question.getDuration()}" class="btn-lg btn-dark pl-5 pr-5" th:text="${question.getDuration()}"></button>
+        </div>
+        <div class="col-sm-2 text-right">
+            <button type="button" id="btn-exit" class="btn btn-dark"><i class="fa fa-times" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    <div class="card p-5 mt-3 text-center text-white" style="background-color: rgba(123, 5, 153, 0.72);">
+        <h1 th:text="${question.getContent()}"></h1>
+        <img th:src="${question.getFile()}" id="image-ques" alt="image question" style="width: 250px;height: 250px;margin-left: auto;margin-right: auto;margin-top: 20px">
+        <div class="row mt-5" id="answer-field" style="justify-content: space-evenly;">
+            <input type="hidden" id="time-question" th:value="${question.getDuration()}">
+            <div th:each="answer, i: ${question.getAnswers()}" th:switch="${i.index}" class="col-sm-2">
+                <button th:case="0" th:text="${answer.getContent()}" th:data-is-correct="${answer.getIsCorrect()}" class="btn btn-success w-100 pt-5 answer-select" style="background-color: #BDC00F;padding-bottom: 150px;height: 250px"></button>
+                <button th:case="1" th:text="${answer.getContent()}" th:data-is-correct="${answer.getIsCorrect()}" class="btn btn-success w-100 pt-5 answer-select" style="background-color: #6981D6;padding-bottom: 150px;height: 250px"></button>
+                <button th:case="2" th:text="${answer.getContent()}" th:data-is-correct="${answer.getIsCorrect()}" class="btn btn-success w-100 pt-5 answer-select" style="background-color: #7228c2;padding-bottom: 150px;height: 250px"></button>
+                <button th:case="3" th:text="${answer.getContent()}" th:data-is-correct="${answer.getIsCorrect()}" class="btn btn-success w-100 pt-5 answer-select" style="background-color: #cd679a;padding-bottom: 150px;height: 250px"></button>
+                <button th:case="4" th:text="${answer.getContent()}" th:data-is-correct="${answer.getIsCorrect()}" class="btn btn-success w-100 pt-5 answer-select" style="background-color: #2045da;padding-bottom: 150px;height: 250px"></button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

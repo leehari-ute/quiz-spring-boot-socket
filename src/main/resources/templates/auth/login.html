@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/home}">
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container m-auto w-25 p-4" style="background-color: rgba(247, 244, 244, 0.986);margin-top: 100px !important;">
+                <h3 class="text-center" style="color: #9A00C0;">Login</h3>
+                <h6 class="text-center" style="color: #9A00C0;">with</h6>
+                <a th:href="@{/oauth2/authorization/google}" role="button" type="button" class="btn btn-danger w-100"><i class="fa fa-google-plus" aria-hidden="true"></i> continue with google</a>
+                <h6 class="text-center" style="color: #9A00C0;">or</h6>
+            <form class="form" action="" th:action="@{/j_spring_security_check}" method="post">
+                <div class="form-group">
+                    <label for="username" style="color: rgba(146, 145, 145, 0.692);">Username:</label><br>
+                    <input type="text" name="username" id="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" style="color: rgba(146, 145, 145, 0.692);">Password:</label><br>
+                    <input type="password" name="password" id="password" class="form-control" required>
+                </div>
+                <p th:if="${param.error}" class="alert alert-warning fade show" style="text-align: center; color: red">Login failed! <span> Invalid credential</span></p>
+                <a th:href="@{/auth/forgot-password}" style="color: #9A00C0;">Forgot password?</a>
+                <button type="submit" id="btn-login" class="btn btn-success w-100" style="background-color: #9C39FF; border-color: #9C39FF;">Login</button>
+                <div style="text-align: center; margin-top: 10px;">
+                    <a style="color: #9A00C0;">Don't have any account?</a>
+                    <a th:href="@{/auth/signup}" role="button" type="button" class="btn btn-success" style="background-color: #9C39FF; border-color: #9C39FF;">Sign up</a>
+                </div>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            </form>
+        </div>
+    </div>
+</body>
+</html>

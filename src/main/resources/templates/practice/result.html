@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Leaderboard</title>
+    <script>
+        $(document).ready(function () {
+            // Ajax request csrf
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+
+            $(document).ajaxSend(function(e, xhr, options) {
+                xhr.setRequestHeader(header, token);
+            });
+            const result = $('#result-container')
+            const thanks = $('#thanks-container')
+            const btnPre = $('#btn-pre')
+            const btnNext = $('#btn-next')
+            $('#btn-exit').click(function () {
+                location.assign("/quiz/home");
+            })
+            const nextSlide = () => {
+                btnNext.click(function () {
+                    $(this).text('Try again');
+                    thanks.show();
+                    btnPre.show();
+                    result.hide();
+                    practiceAgain();
+                })
+            }
+            const practiceAgain = () => {
+                btnNext.click(function () {
+                    location.assign(`/quiz/detail-quiz/${idQuiz}`);
+                })
+            }
+
+            nextSlide();
+            btnPre.click(function () {
+                btnNext.show();
+                thanks.hide();
+                btnPre.hide();
+                result.show();
+            })
+        })
+    </script>
+</head>
+<body>
+    <div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col-sm-10" style="text-align: center;">
+        </div>
+        <div class="col-sm-2 text-right end-field">
+            <button id="btn-exit" type="button" class="btn btn-dark"><i class="fa fa-times" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    <div class="card p-5 mt-3 text-center" id="result-container" style="background-color: #6B3E8E;">
+        <div class="row">
+            <div class="col-sm-6" id="your-rank">
+                <h1 style="color: white;">YOUR RESULT</h1>
+                <div class="card" style="background-color: white">
+                    <table class="table table-borderless">
+                        <thead style="border-bottom:1px solid #C5C5C5">
+                        <tr>
+                            <th scope="col">Correct</th>
+                            <th scope="col">Score</th>
+                        </tr>
+                        </thead>
+                        <tbody style="background-color: #CC9CFD;color: white;">
+                        <tr>
+                            <td th:text="${correctPercent + ' %'}"></td>
+                            <td th:text="${score}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card p-5 mt-3 text-center end-field" id="thanks-container" style="background-color: white; display: none">
+        <h1 style="color: #8C2B88;">THANK YOU</h1>
+        <div style="text-align: center;">
+            <img th:src="@{/images/tks.png}" class="img-fluid" style="width: 30%;" alt="thanks">
+        </div>
+    </div>
+    <div style="margin-top: 10px;" class="end-field">
+        <button type="button" id="btn-pre" class="btn-lg btn-dark pl-5 pr-5" style="background-color: rgba(202, 56, 56, 0.7);border-color: rgba(85, 35, 35, 0.7); float: left; display: none">BACK</button>
+        <button type="button" id="btn-next" data-action="next" class="btn-lg btn-dark pl-5 pr-5" style="background-color: rgba(202, 56, 56, 0.7);border-color: rgba(85, 35, 35, 0.7); float: right;">NEXT</button>
+    </div>
+</div>
+</body>
+</html>

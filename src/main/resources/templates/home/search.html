@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/home}">
+<head>
+    <link rel="stylesheet" th:href="@{/css/home.css}" type="text/css">
+    <title>Search</title>
+    <script>
+        $(document).ready(function () {
+
+            $('#form-search').submit(function (event) {
+                event.preventDefault();
+            }).validate({
+                submitHandler: function(form) {
+                    let name = $('#search-input').val()
+                    let subject = $("#subject").val()
+                    searchQuiz(name, subject);
+                }
+            })
+            $('#subject').change(function () {
+                let params = new URLSearchParams(window.location.search)
+                let name = params.get('name')
+                let subject = $("#subject").val()
+                searchQuiz(name, subject);
+            })
+            const searchQuiz = (name = "", subject = "all") => {
+                $.ajax({
+                    type: "GET",
+                    processData: false,
+                    contentType: false,
+                    url: `/quiz/api/search-quiz?name=${name}&subject=${subject}`,
+                    data: "",
+                    dataType: "text",
+                    cache: false,
+                    timeout: 600000,
+                    success: function (response) {
+                        $('#search-result').html(response);
+                    },
+                    error: function (e) {
+                        console.log("ERROR : ", e);
+                    }
+                });
+            }
+        })
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <nav>
+    <div class="navbar navbar-expand-lg navbar-light" style="background-color: #8C2B88;">
+        <a class="navbar-brand text-white ml-3" th:href="@{/home}">SixQuiz</a>
+        <div class="nav nav-tabs nav-fill" role="tablist" style="border-bottom: none;">
+            <a class="nav-item nav-link active"  th:href="@{/home}"  aria-controls="nav-home" aria-selected="true"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            <a class="nav-item nav-link" style="color: white"><i class="fa fa-clock-o" aria-hidden="true"></i> Activity</a>
+            <div sec:authorize="isAuthenticated()" style="margin-left: 20px">
+                <a th:if="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/dashboard}" class="btn btn-primary pl-4 pr-4" style="background-color: #500030;border-color: #500030;border-radius: 10px;"><i class="fa fa-plus-circle" style="margin-right: 5px" aria-hidden="true"></i>Dashboard </a>
+                <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/editor-quiz/create}" class="btn btn-primary pl-4 pr-4" style="background-color: #500030;border-color: #500030;border-radius: 10px;"><i class="fa fa-plus-circle" style="margin-right: 5px" aria-hidden="true"></i> Create</a>
+            </div>
+        </div>
+        <form class="form-inline my-2 my-lg-0 ml-auto" id="form-search" th:action="@{/home/search}">
+            <input id="search-input" class="form-control" style="border-radius: 5px;width: 700px;" name="name" type="text" th:value="${name}" placeholder="Search" aria-label="Search" required>
+            <button id=btnSearch type="submit">Search</button>
+        </form>
+        <div class="nav-item dropdown ml-3" sec:authorize="isAuthenticated()">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-user text-white" aria-hidden="true"></i>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a th:if="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/dashboard/library}" class="dropdown-item" >My Library</a>
+                <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/home/profile}" class="dropdown-item" >Profile</a>
+                <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/home/setting}" class="dropdown-item" >Setting</a>
+                <a class="dropdown-item" th:href="@{/auth/logout}">Log out</a>
+            </div>
+        </div>
+        <a sec:authorize="isAuthenticated()" href="#"><i class="fa fa-bell text-white ml-2 mr-3" aria-hidden="true"></i></a>
+    </div>
+    <div class="container-fluid" style="background: linear-gradient(0deg, rgba(197, 19, 19, 0.2), rgba(197, 19, 19, 0.2)), linear-gradient(89.13deg, #BA91FF -3.15%, rgba(196, 196, 196, 0) 101.33%);">
+        <div class="row">
+            <div class="col-sm-2">
+                <p class="sixquiz"></p>
+            </div>
+            <div class="col-sm-2">
+                <img th:src="@{/images/hinh1.png}" width="70%" class="img-fluid m-2" alt="image" src="">
+            </div>
+            <div class="col-sm-6">
+                <form>
+                    <div class="form-group row pt-5 pb-5">
+                        <label for="inputCode" class="col-sm-2 col-form-label text-white text-center" style="background-color: #500030;border-radius: 10px;">Enter Code</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputCode">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm-2 mr-0 pr-0" style="text-align: right;">
+                <img th:src="@{/images/cat.png}" width="70%" class="img-fluid" alt="cat" src="">
+            </div>
+        </div>
+    </div>
+</nav>
+    <div class="form-group">
+        <select class="form-control" id="subject" name="subject">
+            <option value="all" selected>All Subject</option>
+            <option th:each="subject : ${subjects}" th:value="${subject.getName()}" th:text="${subject.getName()}"></option>
+        </select>
+    </div>
+    <div class="tab-content px-3 px-sm-0" id="search-result">
+    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+        <div class="row m-5" style="display: flex; justify-content: flex-start; padding: 30px">
+                <div th:each="quiz : ${quizList}" style="margin-right: 25px; margin-left: 25px; width: 20%">
+                    <div class="card-deck text-center" style="margin: 10px;">
+                        <div class="row" style="width: 300px;">
+                                <a th:href="@{/home/playdetail}" class="card ml-0">
+                                    <img class="card-img-top" style="height: 78%;" th:src="${quiz.getTitleImage()}" alt="Card image cap">
+                                    <div class="card-footer">
+                                        <h5 class="card-title" th:text="${quiz.getName()}"></h5>
+                                    </div>
+                                </a>
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

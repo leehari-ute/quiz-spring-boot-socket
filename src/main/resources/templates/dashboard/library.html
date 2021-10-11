@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/admin-teacher}">
+<head>
+    <link rel="stylesheet" th:href="@{/css/library.css}" />
+    <script th:src="@{/scripts/library.js}"></script>
+    <title>Library</title>
+    <script>
+        $(document).ready(() => {
+            let d = new Date();
+            let elem = document.getElementById("time");
+            elem.value = d.toISOString().slice(0,16);
+
+
+            // Ajax request csrf
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+
+            $(document).ajaxSend(function(e, xhr, options) {
+                xhr.setRequestHeader(header, token);
+            });
+
+            $(function () {
+
+            });
+            $('.btn-host').click(function () {
+                const selector = $(this)
+                const idQuiz = selector.data('id');
+                $.ajax({
+                    type: "POST",
+                    processData: false,
+                    contentType: 'application/json',
+                    url: `/quiz/socket/render-code/${idQuiz}`,
+                    data: "",
+                    dataType: "json",
+                    cache: false,
+                    timeout: 600000,
+                    success: function (response) {
+                        console.log(response)
+                        if (response.success) {
+                            location.assign(`/quiz/host/game/${response.data.id}`);
+                        }
+                    },
+                    error: function (e) {
+                        console.log("ERROR : ", e);
+                    }
+                });
+            })
+
+            $('.btn-edit').click(function () {
+                const selector = $(this)
+                const idQuiz = selector.data('id');
+                location.assign(`/quiz/editor-quiz/${idQuiz}`);
+            })
+            $('.btn-practice').click(function () {
+                const idBtn = this.id
+                const idQuiz = $(`#${idBtn}`).data('id')
+                location.assign(`/quiz/join/practice/${idQuiz}`)
+            })
+        })
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div  id="header-library">
+        <h4>My library</h4>
+        <div style="display: flex">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <button
+                        type="button"
+                        style="border-color: black; margin-top: 0; color: black"
+                        class="btn btn-light"
+                >
+                    Show
+                </button>
+                <div class="form-group m-0">
+                    <select
+                            class="form-control"
+                            style="
+                        border-color: black;
+                        border-top-left-radius: 0px;
+                        border-bottom-left-radius: 0px;
+                        border-left: 0px;
+                      "
+                    >
+                        <option>Recent</option>
+                        <option>Alphabetical</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="main-library">
+        <div class="row">
+            <div class="col-sm-9">
+            <div class="a-quiz" th:each="quiz: ${quizzes}">
+                <img class="img-quiz" th:src="${quiz.getTitleImage()}" />
+                <div class="infor-quiz">
+                    <div style="display: flex">
+                        <h1 th:text="${quiz.getName()}"></h1>
+                        <button th:if="${quiz.getIsPublish()}" type="button" th:data-id="${quiz.getId()}" class="btn-host btn-quiz"> Host quiz </button>
+                        <button type="button" th:id="'btn-edit-'+${quiz.getId()}" th:data-id="${quiz.getId()}" class="btn-edit btn-quiz"> Edit </button>
+                        <form th:action="@{'~/quiz/editor-quiz/delete-quiz/'+${quiz.getId()}}" method="post">
+                            <button type="submit" th:id="'btn-delete-'+${quiz.getId()}" th:data-id="${quiz.getId()}" class="btn-delete btn-quiz"> Delete </button>
+                        </form>
+                    </div>
+                    <br>
+                    <div class="sub-infor">
+                        <i class="fas fa-quote-left" style="margin-right: 5px; font-size: 10px; margin-top: 5px"></i>
+                        <p th:text="${quiz.getNumberQuestions() + ' questions'}"></p>
+                        <i class="fas fa-graduation-cap" style="margin-right: 5px; font-size: 10px; margin-top: 5px"></i>
+                        <p th:text="${quiz.getFromGrade() + ' - ' + quiz.getToGrade()}"></p>
+                        <i class="fas fa-play" style="margin-right: 5px; font-size: 10px; margin-top: 5px"></i>
+                        <p>Played 2 times</p>
+                    </div>
+                    <div style="display: flex;justify-content: space-between;width: 432px;">
+                        <div style="display: flex">
+                            <p th:text="${user.getName()}"></p>
+                            <p style="margin-left: 5px;font-size: 12px;line-height: 28px;" id="time" th:text="${quiz.getUpdateAt()}">
+
+                            </p>
+                        </div>
+                        <div style="display: flex">
+                            <p style="margin-right: 10px">
+                                <i class="fas fa-heart" style="margin-right: 5px; color: rgb(172, 172, 172)"></i>Like
+                            </p>
+                            <p class="btn-collect" onclick="collection()">
+                                <i
+                                        class="fas fa-plus-square"
+                                        style="margin-right: 5px; color: #00bcf4"
+                                ></i
+                                >Collection
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3 ml-auto mr-auto">
+            <div class="card p-3" style="background-color: white">
+            <div>
+                <button class="libra-like">
+                    <i class="fas fa-folder-open" style="margin-right: 14px"></i>My library
+                </button>
+            </div>
+            <div style="margin-top: 10px">
+                <button class="libra-like">
+                    <i class="fas fa-heart" style="margin-right: 14px"></i>My like
+                </button>
+            </div>
+            </div>
+            <div style="margin-top: 10px">
+                <img width=200px height="300px" th:src="@{/images/library.jpg}"/>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

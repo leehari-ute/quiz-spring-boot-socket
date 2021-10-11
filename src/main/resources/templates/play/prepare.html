@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/home}">
+<head>
+    <title>PLay Game</title>
+    <link rel="stylesheet" th:href="@{/css/prepare-play.css}" type="text/css">
+    <script type="text/javascript" th:src="@{/scripts/socket.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(document).ready(() => {
+            // Ajax request csrf
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+
+            $(document).ajaxSend(function(e, xhr, options) {
+                xhr.setRequestHeader(header, token);
+            });
+            $(function () {
+                idQuiz = $('#id-quiz').val();
+                code = $('#code').val()
+                idGame = parseInt($('#game').val())
+                // connect();
+                $("#form-name").submit(function(event) {
+                    event.preventDefault()
+                }).validate({
+                    submitHandler: function(form) {
+                        $.ajax({
+                            type: "GET",
+                            processData: false,
+                            contentType: false,
+                            url: "/quiz/socket/get-prepare/join?idGame=" + idGame + "&name=" + $('#name').val(),
+                            data: "",
+                            dataType: "text",
+                            cache: false,
+                            timeout: 600000,
+                            success: function (response) {
+                                // console.log(response)
+                                processAjaxData(response, `/quiz/join/game`)
+                            },
+                            error: function (e) {
+                                console.log("ERROR : ", e);
+                            }
+                        });
+                        return false;
+                    }
+                })
+            });
+            $('#btn-exit').click(function () {
+                location.assign("/quiz/home");
+            })
+        })
+    </script>
+</head>
+<body id="content" style="background-color: black; color: white">
+<div layout:fragment="content">
+    <form method="post" id="form-name">
+    <div class="container-fluid" style="margin-top: 40px;padding-left: 100px;padding-right: 100px;">
+        <div class="row">
+            <div class="col">
+                <input type="hidden" id="game" th:value="${game.getId()}">
+                <input class="textdis" type="text" disabled="disabled" id="code"  name="code" th:value="${game.getCode()}">
+                <input type="hidden" th:value="${game.getIdQuiz().getId()}" id="id-quiz">
+            </div>
+            <div class="col">
+                <button type="button" id="btn-exit" class="btn btn-dark" style="margin-left: 100%; margin-bottom: 50px;"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+
+        <div class="center">
+            <div class="card p-4 py-5">
+                <div class="d-flex justify-content-between align-items-center">
+                    <p th:text="${game.getIdQuiz().getName()}">Your Quizizz name is..</p>
+                </div>
+                <div class="inputform">
+                    <div class="form"> <i class="fa fa-user"></i> <input autofocus required  name="name" id="name" type="text" class="form-control"> </div>
+                    <div class="d-flex flex-column text-left"> <button type="submit" id="btn-enter-name" class="btn btn-success button"><i class="fa fa-play" aria-hidden="true"></i>START</button>
+                    </div>
+                    <div class="line-1"></div>
+                </div>
+                <div class="setting">
+                    <p>Setting</p>
+                </div>
+                <div>
+                    <label for="music" style="margin-right: 10px;"><i class="fa fa-music" aria-hidden="true"></i>  Music</label>
+                    <input id="music" type="checkbox" data-on=" " data-off=" "  checked data-toggle="toggle" data-size="xs" data-style="ios">
+                </div>
+                <div style="margin-top: 0.5rem;">
+                    <label for="timer" style="margin-right: 10px;"><i class="fa fa-clock-o" aria-hidden="true"></i>  Timer</label>
+                    <input id="timer" type="checkbox" data-on=" " data-off=" "  checked data-toggle="toggle" data-size="xs" data-style="ios">
+                </div>
+            </div>
+
+       </div>
+    </div>
+    </form>
+</div>
+</body>
+</html>

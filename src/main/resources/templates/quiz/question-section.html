@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+    <div class="card ml-auto mr-auto mt-3 mb-3" style="width: 90%;">
+        <div class="row">
+            <div class="col-sm-6">
+                <img th:src="@{/images/choice.png}" width="15%" class="img-fluid m-1" alt="" src="">
+                <label style="padding-top:10px;margin-left: 10px;font-size: 20px;"><b th:id="'question-title-' + ${order}" th:text="'Question ' + ${order}"></b></label>
+            </div>
+            <div class="col-sm-6 text-right">
+                <button type="button" th:data-edit="${order}" th:data-id="${question.getPrimaryKey().getId()}" th:id="'btn-edit-' + ${question.getPrimaryKey().getId()}" style="background-color: #CC9CFD;border-color: #CC9CFD;" class="btn btn-dark mt-1 mr-2 btn-edit-question"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                <!--                                                    <button type="button" style="background-color: #CC9CFD;border-color: #CC9CFD;" class="btn btn-dark mt-1 mr-2"><i class="fa fa-files-o" aria-hidden="true"></i></button>-->
+                <button type="button" th:data-delete="${order}" th:data-id="${question.getPrimaryKey().getId()}" th:id="'btn-delete-question-' + ${question.getPrimaryKey().getId()}" style="background-color: #CC9CFD;border-color: #CC9CFD;" class="btn btn-dark mt-1 mr-2 btn-delete-question"><i class="fa fa-trash" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <p th:data-id="${question.getPrimaryKey().getId()}" style="font-size: 20px;margin-left: 40px;margin-right: 40px;text-align: center;" th:text="${question.getContent()}"></p>
+        <hr>
+        <div  style="display: block; padding-left: 100px;padding-right: 100px">
+            <div class="answer-field" th:each="answer : ${question.getAnswers()}">
+                <div th:if="${answer.getIsCorrect()}" class="answer-maker true-answer" th:name="'answer-field-' + ${question.getPrimaryKey().getId()}"></div>
+                <div th:unless="${answer.getIsCorrect()}" class="answer-maker false-answer" th:name="'answer-field-' + ${question.getPrimaryKey().getId()}"></div>
+                <span th:text="${answer.getContent()}"></span>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="form-group m-0">
+            <select th:data-id="${question.getPrimaryKey().getId()}" class="form-control w-25" style="border-color: black;">
+                <option th:each="time : ${times}" th:value="${time.getId()}" th:text="${time.getText()}"
+                        th:selected="${time.getId() == question.getDuration()}"></option>
+            </select>
+        </div>
+    </div>
+</body>
+</html>

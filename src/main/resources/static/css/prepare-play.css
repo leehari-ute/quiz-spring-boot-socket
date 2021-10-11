@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap");
+
+body {
+    background-color: black;
+    font-family: "Poppins", sans-serif;
+    font-weight: 300
+}
+.center{
+    margin-left: 25%;
+    margin-right:25%;
+    width: 50%;
+}
+
+.card {
+    margin: 0px 40px 0px 40px;
+    border: none;
+    background-color: #2D2D2D;
+    color: #fff;
+}
+
+.fonts i {
+    margin-right: 15px;
+    font-size: 18px;
+    color: #cac7c7
+}
+
+.button {
+    height: 50px;
+    font-size: 24px;
+    background-color: #8C2B88;
+    border: none;
+    margin-top: 25px
+}
+
+.button:hover {
+    background-color: #6c04e4
+}
+
+.form {
+    position: relative;
+    margin-top: 15px
+}
+
+.form input {
+    height: 52px;
+    text-indent: 22px
+}
+
+.form i {
+    position: absolute;
+    color: #00000052;
+    left: 10px;
+    top: 16px;
+    font-size: 20px
+}
+.textdis{
+    color: #000000;
+    background-color: #C4C4C4;
+    text-align: center;
+    width: 120px;
+    border-radius: .25rem;
+}
+.line-1 {
+    height: 1px;
+    background: white;
+    margin-top: 50px;
+}
+.p-4 {
+    padding: 4.0rem!important;
+}
+p{
+    color: #8A8A8A;
+}
+.setting{
+    margin-top: 20px;
+}
+.toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20rem; color: #8C2B88;}
+.toggle.ios .toggle-handle { border-radius: 20rem; color: #8C2B88;}
+
+.toggle-on.btn-xs {
+    padding-right: .8rem;
+    background-color: #8C2B88;
+}

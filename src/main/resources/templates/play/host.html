@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/home}">
+<head>
+    <meta charset="UTF-8">
+    <title>Room</title>
+    <link rel="stylesheet" th:href="@{/css/room-host.css}" type="text/css">
+    <script type="text/javascript" th:src="@{/scripts/socket.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(document).ready(() => {
+            // Ajax request csrf
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+
+            $(document).ajaxSend(function(e, xhr, options) {
+                xhr.setRequestHeader(header, token);
+            });
+
+            isHost = true;
+            idQuiz = $('#id-quiz').val();
+            code = $('#code').val();
+            idGame = parseInt($('#game').val())
+            $(function () {
+                connect();
+            });
+            $(`#start`).click(function () {
+                if (totalPlayers > 0) {
+                    sendStart();
+                }
+            })
+
+            $('#btn-exit').click(function () {
+                disconnect();
+                location.assign("/quiz/home");
+            })
+        })
+    </script>
+</head>
+<body id="content">
+<div layout:fragment="content">
+    <div class="container-fluid" style="margin-top: 40px;padding-left: 100px;padding-right: 100px;">
+        <div class="row">
+            <div class="col">
+                <input class="textdis" type="text" disabled="disabled" th:value="${game.getCode()}">
+            </div>
+            <div class="col-6">
+                <p> <span class="blink">Waiting for your students to join the game...</span></p>
+            </div>
+            <div class="col">
+                <button class="btn btn-dark" id="btn-exit" style="margin-left: 100%; margin-bottom: 50px;"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+
+        <div class="formmain">
+            <div class="card p-4">
+                <div class="cardform">
+                    <div class="cardinput">
+<!--                        <div class="justify-content-between align-items-center" style="text-align: center;">-->
+<!--                            <p>Ask your students to<br>1. Open with:</p>-->
+<!--                        </div>-->
+<!--                        <div class="inputform">-->
+<!--                            <div class="form"> <input type="text" class="form-control"> </div>-->
+<!--                        </div>-->
+                        <div class="justify-content-between align-items-center">
+                            <p>Ask your students to <br> Enter game code:</p>
+                        </div>
+                        <div style="margin-bottom: 25px;" class="inputform">
+                            <div class="form">  <div style="text-align: center" type="button" disabled th:text="${game.getCode()}" class="form-control"> </div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-column text-left"> <button id="start" class="btn btn-success button"><i class="fa fa-play" aria-hidden="true"></i>   START</button>
+                    <hr style="margin-top: 30px; background-color: white;">
+                    <div style="text-align: center;">
+                        <input type="hidden" id="total" th:value="${players.size()}">
+                        <label id="total-players" style="background-color: rgb(75, 74, 74);padding: 5px 20px; border-radius: 10px;"><i class="fa fa-users" aria-hidden="true"></i> </label>
+                    </div>
+                    <div class="card-deck text-center mt-3" th:id="${game.getId()}">
+                        <div th:each="player: ${players}" th:id="${player.getId()}" class="card" style="background-color: black;">
+                            <img src="https://res.cloudinary.com/leehari/image/upload/v1631856576/z8k64on2f76wtllsdaml.png" style="width: 20%;margin-left: auto;margin-right: auto;" class="img-fluid mt-3" alt="">
+                            <label th:text="${player.getName()}"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" th:value="${game.getCode()}" id="code">
+        <input type="hidden" th:value="${game.getId()}" id="game">
+        <input type="hidden" th:value="${game.getIdQuiz().getId()}" id="id-quiz">
+    </div>
+</body>
+</html>

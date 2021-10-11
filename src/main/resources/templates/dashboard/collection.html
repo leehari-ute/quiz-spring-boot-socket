@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/admin-teacher}">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" th:href="@{/css/collection.css}" />
+    <script th:src="@{/scripts/collection.js}"></script>
+    <title>Collection</title>
+</head>
+<body>
+<div layout:fragment="content">
+        <div id="content-collection">
+            <div class="btn-collection">
+                <button id="btn-collection" onclick="collectionCreate()"><i class="fas fa-plus" style="margin-right: 5px" ></i>CREATE COLLECTION</button>
+            </div>
+            <div class="a-collection">
+                <div class="name-infor">
+                    <div class=name-collection>Animal</div>
+                    <div class="some-quiz">2 Quizzes</div>
+                </div>
+                <div class="twoBtn">
+                    <div class="btnEdit" role="button" tabindex="0" onclick="collectionEdit()">Edit</div>
+                    <div class="btnDelete" role="button" tabindex="0">Delete</div>
+                </div>
+            </div>
+            <div class="a-collection">
+                <div class="name-infor">
+                    <div class=name-collection>Animal</div>
+                    <div class="some-quiz">2 Quizzes</div>
+                </div>
+                <div class="twoBtn">
+                    <div class="btnEdit" role="button" tabindex="0" onclick="collectionEdit()">Edit</div>
+                    <div class="btnDelete" role="button" tabindex="0">Delete</div>
+                </div>
+            </div>
+            <div class="a-collection">
+                <div class="private">
+                    <span>Private</span>
+                </div>
+                <div class="name-infor">
+                    <div class=name-collection>Animal</div>
+                    <div class="some-quiz">2 Quizzes</div>
+                </div>
+                <div class="twoBtn">
+                    <div class="btnEdit" role="button" tabindex="0" onclick="collectionEdit()">Edit</div>
+                    <div class="btnDelete" role="button" tabindex="0">Delete</div>
+                </div>
+
+            </div>
+            <div class="a-collection" >
+                <div class="private">
+                    <span>Private</span>
+                </div>
+                <div class="name-infor">
+                    <div class=name-collection>Animal</div>
+                    <div class="some-quiz">2 Quizzes</div>
+                </div>
+                <div class="twoBtn">
+                    <div class="btnEdit" role="button" tabindex="0" onclick="collectionEdit()">Edit</div>
+                    <div class="btnDelete" role="button" tabindex="0">Delete</div>
+                </div>
+            </div>
+        </div>
+        <dialog id="dialog-Edit">
+            <div style="font-size: 20px;">Edit `Animal`</div>
+            <hr>
+            <div>
+                <p style="font-size: 12px;">Collection name</p>
+                <input id="changeName" type="text" value="Animal" focus>
+            </div>
+            <hr>
+            <div>
+                <p style="font-size: 12px;">Visibility</p>
+                <input type="radio" id="public-radio" name="radio"> Public
+                <input type="radio" id="private-radio" name="radio" style="margin-left: 10px;"> Private
+            </div>
+            <hr>
+            <div class="cancel-update">
+                <button id="cancel" onclick="cancelEdit()">Cancel</button>
+                <button id="update">Update</button>
+            </div>
+        </dialog>
+        <dialog id="dialog-Create">
+            <div style="font-size: 20px;"><i class="fas fa-folder" style="margin-right: 8px; color: #e8d658; font-size: 27px;"></i>Create new Collection</div>
+            <hr>
+            <div>
+                <p style="font-size: 12px;">Enter collection name</p>
+                <input id="enterName" type="text" focus>
+            </div>
+            <hr>
+            <div>
+                <p style="font-size: 12px;">Visibility</p>
+                <input type="radio" id="public-radio" name="radio"> Public
+                <input type="radio" id="private-radio" name="radio" style="margin-left: 10px;"> Private
+            </div>
+            <hr>
+            <div class="cancel-update">
+                <button id="cancel" onclick="cancelCreate()">Cancel</button>
+                <button id="create">Create collection</button>
+            </div>
+        </dialog>
+
+
+</div>
+</body>
+</html>

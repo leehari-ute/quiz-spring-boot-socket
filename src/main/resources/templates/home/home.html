@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/home}">
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}" type="text/css">
+    <script>
+        $(document).ready(function () {
+            $("#form-join").submit(function (event) {
+                event.preventDefault()
+            }).validate({
+                submitHandler: function () {
+                    const code = $('#input-code').val().trim()
+                    $.ajax({
+                        type: "GET",
+                        processData: false,
+                        contentType: "application/json",
+                        url: `/quiz/socket/find-game/${code}`,
+                        data: "",
+                        dataType: "json",
+                        cache: false,
+                        timeout: 600000,
+                        success: function (response) {
+                            console.log(response)
+                            if (response.success) {
+                                location.assign(`/quiz/join/${response.data.id}/prepare-game`)
+                            } else {
+                                $('#not-found').html('Code game is invalid');
+                            }
+                        },
+                        error: function (e) {
+                            console.log("ERROR : ", e);
+                            $('#not-found').html('Code game is invalid');
+                        }
+                    });
+                    return false;
+                }
+            })
+
+            $('.btn-practice').click(function () {
+                const idBtn = this.id
+                const idQuiz = $(`#${idBtn}`).data('id')
+                location.assign(`/quiz/join/practice/${idQuiz}`)
+            })
+            $('.btn-edit').click(function () {
+                const idBtn = this.id
+                const idQuiz = $(`#${idBtn}`).data('id')
+                location.assign(`/quiz/editor-quiz/${idQuiz}`)
+            })
+        })
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <section id="tabs">
+        <nav>
+            <div class="navbar navbar-expand-lg navbar-light myClass" style="background-color: #8C2B88;">
+                <a class="navbar-brand text-white ml-3" th:href="@{/home}">SixQuiz</a>
+                <div class="nav nav-tabs nav-fill" role="tablist" style="border-bottom: none;">
+                    <a class="nav-item nav-link active" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+                    <a class="nav-item nav-link" data-toggle="tab" href="#nav-act" role="tab" aria-controls="nav-act" aria-selected="false"><i class="fa fa-clock-o" aria-hidden="true"></i> Activity</a>
+                    <div sec:authorize="isAuthenticated()" style="margin-left: 20px">
+                        <a th:if="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/dashboard}" class="btn btn-primary pl-4 pr-4" style="background-color: #500030;border-color: #500030;border-radius: 10px;"><i class="fa fa-plus-circle" style="margin-right: 5px" aria-hidden="true"></i>Dashboard </a>
+                        <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/editor-quiz/create}" class="btn btn-primary pl-4 pr-4" style="background-color: #500030;border-color: #500030;border-radius: 10px;"><i class="fa fa-plus-circle" style="margin-right: 5px" aria-hidden="true"></i> Create</a>
+                    </div>
+                </div>
+                <form class="form-inline my-2 my-lg-0 ml-auto" id="form-search" th:action="@{/home/search}">
+                    <input id="search-input" class="form-control" style="border-radius: 5px;width: 700px;" name="name" type="text" th:value="${name}" placeholder="Search" aria-label="Search" required>
+                    <button id=btnSearch type="submit">Search</button>
+                    <input type="hidden" name="subject" value="all">
+                </form>
+                <div style="margin-left: 20px;" sec:authorize="isAuthenticated()">
+                    <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/profile}"><i class="fa fa-user text-white ml-2 mr-3" aria-hidden="true"></i></a>
+                    <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/setting}"><i class="fa fa-cog text-white ml-2 mr-3" aria-hidden="true"></i></a>
+                    <a th:href="@{/auth/logout}"><i class="fa fa-sign-out text-white ml-2 mr-3" aria-hidden="true"></i></a>
+                </div>
+            </div>
+            <div class="container-fluid myClass" style="background: linear-gradient(0deg, rgba(197, 19, 19, 0.2), rgba(197, 19, 19, 0.2)), linear-gradient(89.13deg, #BA91FF -3.15%, rgba(196, 196, 196, 0) 101.33%);">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <p class="sixquiz"></p>
+                    </div>
+                    <div class="col-sm-2">
+                        <img th:src="@{/images/hinh1.png}" width="70%" class="img-fluid m-2" alt="image" src="">
+                    </div>
+                    <div class="col-sm-6">
+                        <form id="form-join" method="get">
+                            <div class="form-group row pt-5 pb-5">
+                                <input type="hidden" name="gameType" value="class">
+                                <button type="submit" class="col-sm-2 col-form-label text-white text-center" style="background-color: #500030;border-radius: 10px;">Enter Code</button>
+                                <div class="col-sm-10">
+                                    <input type="text" required class="form-control" id="input-code">
+                                    <p id="not-found"></p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-sm-2 mr-0 pr-0" style="text-align: right;">
+                        <img th:src="@{/images/cat.png}" width="70%" class="img-fluid" alt="cat" src="">
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="tab-content px-3 px-sm-0">
+            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                <div class="row m-5">
+                    <div class="col-sm-10">
+<!--                        <div class="fadeInRight" style="text-align: center;">-->
+<!--                            <button th:each="subject: ${subjects}" th:value="${subject.getName()}" th:text="${subject.getName()}" type="button" class="btn btn-primary subject mr-2 ml-2 mb-4"></button>-->
+<!--                        </div>-->
+                        <div class="fadeInRight" th:each="subject: ${subjects}">
+                            <label th:value="${subject.getName()}" th:text="${subject.getName()}" style="border-radius: 10px;background-color: #500030;color: white; width: 150px;text-align: center;margin: 10px;padding: 7px;"></label>
+                            <a href="#" style="margin-left: 880px;">See more</a>
+                            <div class="card-deck text-center" style="margin: 10px;">
+                                <div class="row" style="justify-content: space-between">
+                                    <div class="col-sm-3" th:each="quiz: ${quizzes.get(subject.getName())}">
+                                        <a th:href="@{'~/quiz/detail/' + ${quiz.getId()}}" class="card ml-0"> <!--  fix cho nay --->
+                                            <img class="card-img-top" style="width: 250px; height: 250px" th:src="${quiz.getTitleImage()}" alt="Card image cap">
+                                            <div class="card-footer">
+                                                <h5 class="card-title" th:text="${quiz.getName()}"></h5>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 myClass">
+                        <div sec:authorize="isAnonymous()" class="card" style="background-color: #E9D3FF;padding: 30px;border-radius: 10px;">
+                            <a role="button" th:href="@{/auth/signup}" class="btn btn-primary signup mb-4 mt-4">Sign up</a>
+                            <a role="button" th:href="@{/auth/login}" class="btn btn-primary signup mb-4">Login</a>
+                        </div>
+                        <div sec:authorize="isAuthenticated()" class="card" style="background-color: #E9D3FF;padding: 30px;border-radius: 10px;">
+                            <img th:src="${user.getAvt()}" class="img-fluid" style="border-radius: 50%;" alt="">
+                            <p style="text-align: center;margin-top: 10px;"><b th:text="${user.getName()}"></b></p>
+                            <p style="text-align: center;" th:text="${user.getBio()}"></p>
+                            <button type="button" class="btn btn-primary signup mb-4">Điểm danh</button>
+                        </div>
+                        <img th:src="@{/images/hinh3.png}" class="img-fluid mt-5" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade text-center" id="nav-act" role="tabpanel" aria-labelledby="nav-profile-tab">
+<!--                <div class="row m-5 myClass" sec:authorize="isAuthenticated()">-->
+<!--                    <div class="col-sm-10" >-->
+<!--                        <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist" style="border-bottom: none;background-color: #500030;padding: 5px;">-->
+<!--                            <a class="nav-item nav-link active" data-toggle="tab" href="#running" role="tab" aria-controls="running" aria-selected="true">Running <i class="fa fa-bolt" aria-hidden="true"></i></a>-->
+<!--                            <a class="nav-item nav-link" data-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false">Completed <i class="fa fa-bolt" aria-hidden="true"></i></a>-->
+<!--                            <a class="nav-item nav-link" data-toggle="tab" href="#created" role="tab" aria-controls="created" aria-selected="false">Created <i class="fa fa-bolt" aria-hidden="true"></i></a>-->
+<!--                        </div>-->
+<!--                        <div class="tab-content px-3 px-sm-0">-->
+<!--                            <div class="tab-pane fade show active text-center" id="running" role="tabpanel" aria-labelledby="nav-home-tab">-->
+<!--                                <p style="margin-top: 50px;">It looks like you don't have any games in progress.</p>-->
+<!--                                <img th:src="@{/images/hinh4.png}" class="img-fluid" alt="">-->
+<!--                                <br>-->
+<!--                                <button class="btn btn-success" style="background-color: blueviolet;border-color: blueviolet;border-radius: 10px;">Find a quiz</button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-sm-2">-->
+<!--                        <div  class="card" style="background-color: #E9D3FF;padding: 30px;border-radius: 10px;">-->
+<!--                            <img th:src="@{/images/avt.png}" class="img-fluid" style="border-radius: 50%;" alt="avatar" src="">-->
+<!--                            <p style="text-align: center;margin-top: 10px;"><b th:text="${user.getName()}"></b></p>-->
+<!--                            <p style="text-align: center;" th:text="${user.getBio()}"></p>-->
+<!--                            <button type="button" class="btn btn-primary signup mb-4">Điểm danh</button>-->
+<!--                        </div>-->
+<!--                        <img th:src="@{/images/hinh3.png}" class="img-fluid mt-5" alt="background" src="">-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="row m-5" sec:authorize="isAuthenticated()">
+                    <div class="col-sm-10" >
+                        <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist" style="border-bottom: none;background-color: #500030;padding: 5px;">
+                            <a class="nav-item nav-link active " data-toggle="tab" href="#running" role="tab" aria-controls="running" aria-selected="true" >Running <i class="fa fa-bolt" aria-hidden="true"></i></a>
+                            <a class="nav-item nav-link" data-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false" >Completed <i class="fa fa-bolt" aria-hidden="true"></i></a>
+                            <a class="nav-item nav-link" data-toggle="tab" href="#created" role="tab" aria-controls="created" aria-selected="false" >Created <i class="fa fa-bolt" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="tab-content px-3 px-sm-0" id="created" role="tabpanel">
+                            <div class="row">
+                                <div class="card ml-auto mr-auto" style="width: 23rem;margin-top: 50px;margin-bottom: 50px" th:each="quiz:${quizzs}" >
+                                    <img class="card-img-top" style="height: 250px; border-bottom: 1px solid black" th:src="${quiz.getTitleImage()}" alt="Card image cap">
+                                    <div style="margin-left: auto; margin-bottom: 0px;">
+                                        <label style="padding: 5px;background-color: #CC9CFD; border-radius: 5px;">23 plays</label>
+                                        <label style="padding: 5px;background-color: #CC9CFD; border-radius: 5px;" th:text="${quiz.getNumberQuestions() + ' Question'}"></label>
+                                    </div>
+
+                                    <div class="card-body mt-0 pt-0 mb-0 pb-0" th:each="user:${user}" >
+                                        <h4 class="card-title" th:text="${quiz.getName()}"></h4>
+                                        <h6 class="card-text text-left"><i class="fa fa-smile-o" aria-hidden="true" th:text="' Author: '+ ${user.getName()}"></i></h6>
+                                        <h6 class="card-text text-left"><i class="fa fa-graduation-cap" aria-hidden="true" th:text="' Grade: ' +${quiz.getFromGrade()}+' - '+${quiz.getToGrade()}"></i></h6>
+                                    </div>
+                                    <br>
+                                    <div style="display: flex; margin-left: auto;" >
+                                        <form th:action="@{'~/quiz/editor-quiz/delete-quiz/'+${quiz.getId()}}" method="post">
+                                            <button class="btn btn-secondary mr-3 mt-0 mb-2" th:id="'btn-delete-' +${quiz.getId()}" th:data-id="${quiz.getId()}" type="submit" style="margin-left: auto;"><i class="fas fa-trash-alt" aria-hidden="true"></i> Delete</button>
+                                        </form>
+
+                                        <button class="btn btn-secondary mr-3 mt-0 mb-2 btn-edit" th:id="'btn-edit-' + ${quiz.getId()}" th:data-id="${quiz.getId()}" ><i class="fa fa-pencil" aria-hidden="true"></i> Edit</button>
+                                        <button class="btn btn-secondary mr-3 mt-0 mb-2" th:id="'btn-share-' + ${quiz.getId()}" th:data-id="${quiz.getId()}"><i class="fa fa-share-alt" aria-hidden="true"></i> Share</button>
+                                    </div>
+
+                                    <div class="card-footer">
+                                        <button class="btn btn-primary btn-practice w-100 mr-3 ml-3" th:id="'btn-practice-' + ${quiz.getId()}" th:data-id="${quiz.getId()}" style="background-color: rgba(123, 5, 153, 0.72);border-color: rgba(123, 5, 153, 0.72);">PRACTICE <i class="fas fa-play-circle" aria-hidden="true"></i></button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div  class="card" style="background-color: #E9D3FF;padding: 30px;border-radius: 10px;">
+                            <img th:src="${user.getAvt()}" class="img-fluid" style="border-radius: 50%;" alt="avatar" src="">
+                            <p style="text-align: center;margin-top: 10px;"><b th:text="${user.getName()}"></b></p>
+                            <p style="text-align: center;" th:text="${user.getBio()}"></p>
+<!--                            <button type="button" class="btn btn-primary signup mb-4">Điểm danh</button>-->
+                        </div>
+                        <img th:src="@{/images/hinh3.png}" class="img-fluid mt-5" alt="background" src="">
+                    </div>
+                </div>
+                <div class="myClass" sec:authorize="isAnonymous()">
+                    <div>
+                        <h1 style="margin-top: 30px;margin-bottom: 20px;">Please Login To Review Your Activity</h1>
+                        <a role="button" th:href="@{/auth/login}" class="btn-lg btn-success pl-5 pr-5 mt-3 mr-3">Log In</a>
+                        <a role="button" th:href="@{/auth/signup}" class="btn-lg btn-danger pl-5 pr-5 mt-3">Sign Up</a>
+                    </div>
+                    <img th:src="@{/images/hinh4.png}" class="img-fluid mt-3" alt="" src="">
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+
+</html>

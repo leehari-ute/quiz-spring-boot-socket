@@ -1,0 +1,208 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif !important;
+    background-color: #eeeeee;
+}
+
+@media screen and (max-width: 800px) {
+    .box {
+        display: none;
+    }
+    #infor{
+        display: none;
+    }
+    #content{
+        width: 100%;
+    }
+}
+
+#header {
+    display: flex;
+    background-color: #8c2b88;
+    justify-content: space-around;
+    color: #00000026;
+    line-height: 1;
+    align-items: center;
+    padding: 9px;
+    filter: drop-shadow(0 0 0.75rem crimson);
+}
+
+#header h1 {
+    font-size: 30px;
+    color: antiquewhite;
+    font-family: "Rampart One", cursive;
+}
+
+.search {
+    height: 40px;
+    width: 60%;
+}
+
+.container-1 {
+    width: 100%;
+    vertical-align: middle;
+    white-space: nowrap;
+    position: relative;
+}
+
+.container-1 input#search {
+    width: 100%;
+    height: 40px;
+    background: #c0c0ee6b;
+    /* background: white; */
+    border: none;
+    font-size: 12pt;
+    float: left;
+    color: black;
+    padding-left: 45px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-transition: background 0.55s ease;
+    -moz-transition: background 0.55s ease;
+    -ms-transition: background 0.55s ease;
+    -o-transition: background 0.55s ease;
+    transition: background 0.55s ease;
+}
+
+.container-1 input#search::-webkit-input-placeholder {
+    color: #65737e;
+}
+
+.container-1 input#search:-moz-placeholder {
+    color: #65737e;
+}
+
+.container-1 input#search::-moz-placeholder {
+    color: #65737e;
+}
+
+.container-1 input#search:-ms-input-placeholder {
+    color: #65737e;
+}
+
+.box {
+    width: 1000px;
+    height: 40px;
+    margin-left: -30px;
+}
+
+.container-1 .search-icon {
+    position: absolute;
+    top: 50%;
+    margin-left: 17px;
+    margin-top: 13px;
+    z-index: 1;
+    color: black;
+}
+
+.container-1 input#search:focus,
+.container-1 input#search:active {
+    outline: none;
+    background: #ffffff;
+}
+
+.btnCode {
+    margin-left: -50px;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: none;
+    background: #c0c0ee6b;
+}
+
+::placeholder {
+    /* chạy tốt trên Chrome, Firefox, Opera, Safari 10.1+ */
+    color: black !important;
+    opacity: 1;
+    /* Firefox */
+}
+
+:-ms-input-placeholder {
+    /* chạy trên Internet Explorer 10-11 */
+    color: black !important;
+}
+
+::-ms-input-placeholder {
+    /* chạy trên Microsoft Edge */
+    color: black !important;
+}
+
+
+/* ///////////////////////////////////////// */
+
+
+
+#content {
+    background: #7f7fd5;
+    background: -webkit-linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
+    background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
+}
+
+.ava {
+    width: 100px;
+    height: 100px;
+    padding: 5px;
+    border: 1px solid blueviolet;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.menu {
+    list-style: none;
+}
+
+#account {
+    margin-top: 20px;
+}
+
+.btnLayout {
+    border: none;
+    background: #8c2b88;
+    color: white;
+    margin-top: 5px;
+    padding: 7px 12px 7px 12px;
+    border-radius: 3px;
+}
+
+.btnLayout a{
+    color: white !important;
+}
+
+.btnLayout:focus {
+    box-shadow: -3px -3px #a8a8a8;
+}
+
+.menu li {
+    margin-top: 15px;
+    color: #0000008c;
+}
+
+.menu li a{
+    color: #0000008c;
+}
+
+.menu li:focus {
+    color: #8c2b88;
+}
+
+.menu li a:hover{
+    color: #8c2b88;
+    text-decoration: none;
+}
+
+.menu li a:focus {
+    color: #8c2b88;
+}
+
+.btnCode a:hover{
+    text-decoration: none;
+}
+
+.navbar-brand{
+    font-size: 30px !important;
+    font-family: "Rampart One", cursive !important;
+}

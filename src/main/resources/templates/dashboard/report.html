@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/admin-teacher}">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" th:href="@{/css/reports.css}" />
+    <title>Report</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="report-header">
+        <div class="form-group m-0">
+            <select class="form-control">
+                <option>All Reports</option>
+                <option>Alphabetical</option>
+            </select>
+        </div>
+        <div class="form-group m-0">
+            <select class="form-control">
+                <option>Filter by Class</option>
+                <option>Filter by Date</option>
+            </select>
+        </div>
+    </div>
+    <div class="report-content">
+        <table>
+            <tr>
+                <th class="column-1">Type</th>
+                <th class="column-2">Quiz's name</th>
+                <th class="column-3">Total participants</th>
+                <th class="column-4">Accuracy</th>
+                <td class="column-7"></td>
+                <th class="column-5">Code</th>
+                <th class="column-6"></th>
+            </tr>
+            <tr class="list">
+                <td class="column-1-quiz">
+                    <div>
+                        <i class="fas fa-comments" style="margin-right: 5px"></i
+                        >Test
+                    </div>
+                </td>
+                <td class="column-2-quiz">Quiz số 1</td>
+                <td class="column-3-quiz">32</td>
+                <td class="column-4-quiz"><div>60%</div></td>
+                <td class="column-7-quiz"></td>
+                <td class="column-5-quiz"><div>012345</div></td>
+                <td class="column-6-quiz">
+                    <i class="fas fa-times-circle"></i>
+                </td>
+            </tr>
+            <tr class="list">
+                <td class="column-1-quiz">
+                    <div>
+                        <i class="fas fa-comments" style="margin-right: 5px"></i
+                        >Test
+                    </div>
+                </td>
+                <td class="column-2-quiz">Quiz số 1</td>
+                <td class="column-3-quiz">32</td>
+                <td class="column-4-quiz"><div>60%</div></td>
+                <td class="column-7-quiz"></td>
+                <td class="column-5-quiz"><div>012345</div></td>
+                <td class="column-6-quiz">
+                    <i class="fas fa-times-circle"></i>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

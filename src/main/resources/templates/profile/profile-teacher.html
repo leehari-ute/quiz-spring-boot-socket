@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/admin-teacher}">
+<head>
+    <script th:src="@{/scripts/edit-profile.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/profile.css}">
+    <link rel="stylesheet" th:href="@{/css/library.css}">
+    <title>Profile</title>
+    <script type="text/javascript" th:inline="javascript">
+        $(document).ready(() => {
+            $("#btn-close-quiz-editor").click(function () {
+                const form = document.getElementById("form-editor-quiz");
+                form.style.display = "none";
+                form.reset();
+                $("#output-quiz").attr('src', '');
+                handleOutputImage();
+            })
+            $("#image-title-quiz").change(function () {
+                $('#output-quiz').attr("src",window.URL.createObjectURL(this.files[0]));
+                $("#label-output-quiz").show()
+            })
+            const handleOutputImage = () => {
+                // console.log(!($("#output-quiz").attr('src') === ""))
+                const labelOutputQuiz = $("#label-output-quiz")
+                if (!($("#output-quiz").attr('src') === "")) {
+                    labelOutputQuiz.show()
+                } else {
+                    labelOutputQuiz.hide()
+                }
+            }
+            $(function (){
+                handleOutputImage();
+            })
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="content" style="height: 100%">
+    <div style="display: flex;justify-content: center;align-items: center;">
+        <div>
+            <div class="header-profile">
+                <div style="display: flex">
+                    <div>
+                        <img style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" class="ava-profile" th:src="${user.getAvt()}"/>
+                    </div>
+                    <div class="infor-basic" >
+                        <h1 class="name-profile" th:text="${user.getName()}"></h1>
+                        <h1 class="username-profile" th:text="${user.getUsername()}"></h1>
+                        <h1 class="username-profile" th:text="${user.getEmail()}"></h1>
+                        <h1 class="teacher" th:text="${user.getRole()}"></h1>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="button" id="btn-edit" onclick="editProfile()">
+                        <i class="far fa-edit" style="margin-right: 5px"></i>Edit profile
+                    </button>
+                    <!-- -----dialog---- -->
+                    <dialog id="edit-profile">
+                        <div>
+                            <p style="font-size: 20px;color: #9c1fc9;"><i class="fas fa-user-edit" style="margin-right: 5px;font-size: 35px;"></i>Edit profile</p>
+                        </div>
+                        <form th:action="@{~/quiz/profile/update}" method="post" enctype="multipart/form-data">
+                            <hr>
+                            <div>
+                                <!--/*@thymesVar id="Urlimg" type=""*/-->
+                                <div class="file-upload" >
+                                    <div style="margin-top: 20px;">
+                                        <p style="color: #6B3E8E;">Add a title image</p>
+                                        <input type="file" name="fileAva" accept="image/*" id="image-title-quiz" hidden/>
+                                        <div style="position: relative; width: 100%;">
+                                            <label for="image-title-quiz" style="position: absolute; height: 175px; background-color: rgb(236, 235, 235);padding: 20px;width: 100%;text-align: center;border: 1px dashed black; border-radius: 10px;"><img style="position: absolute; top: 50%;  left: 50%;transform: translate(-50%, -50%);width: 30%; height: 50%" class="output-image" th:src="${user.getAvt()}" alt="" src=""><br></label>
+                                            <label id="label-output-quiz" for="image-title-quiz" style="position: absolute; height: 175px; background-color: rgb(236, 235, 235);padding: 20px;width: 100%;text-align: center;border: 1px dashed black; border-radius: 10px;"><img style=" position: absolute; top: 50%;  left: 50%;transform: translate(-50%, -50%);width: 30%; height: 50%" class="output-image" id="output-quiz" alt="" th:src="${user.getAvt()}"><br></label>
+                                        </div>
+                                    </div>
+                                    <div class="file-upload-content">
+                                        <img class="file-upload-image" src="#" alt="your image" />
+                                        <div class="image-title-wrap">
+                                            <button type="button" onclick="removeUpload()" class="remove-image">Remove <span class="image-title">Uploaded Image</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <hr>
+                            <div style="color: #9e9e9e;margin-top: 35%;">
+                                <p><i class="fas fa-user" style="margin-right: 5px"></i>Account information</p>
+                                <p>Name</p>
+                                <input type="text" id=edit-firstname name="name" th:value="${user.getName()}">
+                            </div>
+                            <hr>
+                            <div style="color: #9e9e9e;">
+                                <p><i class="fas fa-book" style="margin-right: 5px"></i>Bio</p>
+                                <textarea style="width: 100%" name="bio" th:text="${user.getBio()}" ></textarea>
+                            </div>
+                            <hr>
+                            <div style="color: #9e9e9e;">
+                                <p><i class="fas fa-graduation-cap" style="margin-right: 5px"></i>Grade</p>
+                                <p>Select a grade you teach</p>
+                                <div class="menu-grade">
+                                    <select required class="form-control" id="from-grade" name="grade">
+                                        <option value="" disabled selected>Grade</option>
+                                        <option th:each="grade : ${grades}" th:value="${grade.getId()}" th:text="${grade.getId()}"
+                                                th:selected="${grade.getId().equalsIgnoreCase(user.getGrade())}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="btn-footer" style="display:flex;">
+                                <div id=cancel onclick="canceleditPro()" style="margin-right: 10px">Cancel</div>
+                                <button id=save type="submit">Save</button>
+                            </div>
+                            <br>
+                        </form>
+
+                    </dialog>
+                    <!-- -----dialog---- -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

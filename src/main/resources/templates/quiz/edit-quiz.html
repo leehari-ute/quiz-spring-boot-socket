@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/home}">
+<head>
+    <title>Editor Quiz</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/home.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/editor-quiz.css}" type="text/css">
+    <script type="text/javascript" th:src="@{/scripts/editor-quiz.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(document).ready(() => {
+            // Ajax request csrf
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+
+            $(document).ajaxSend(function(e, xhr, options) {
+                xhr.setRequestHeader(header, token);
+            });
+
+            console.log("ready")
+            const idQuiz = parseInt($("#id-quiz").val())
+            const numberQuestion = parseInt($("#number-questions").val())
+            console.log("id quiz:" + idQuiz)
+            console.log("total question: " +numberQuestion)
+            // const quizHadImage = !($("#output-quiz").attr('src') === "")
+
+            $("#btn-add-answer").click(function () {
+                addAnswer();
+                new OnclickHandler($('.btn-delete'), 'btn-delete-answer');
+            });
+            const nameQuizOverview = $('#btn-edit-quiz')
+            const nameQuiz = nameQuizOverview.text()
+            nameQuizOverview.html(`<b><i class="fa fa-pencil" aria-hidden="true"></i> ${nameQuiz} </b>`)
+
+
+            $("#btn-publish").click(function () {
+                const fromGrade = $('#from-grade')
+                const toGrade = $('#to-grade')
+                if (fromGrade.val() == null || toGrade.val() == null) {
+                    $("#form-editor-quiz").show();
+                } else {
+                    publishQuiz(idQuiz);
+                }
+            });
+
+            $(".quiz-detail").click(function () {
+                $("#form-editor-quiz").show();
+            })
+
+            $("#btn-close-quiz-editor").click(function () {
+                const form = document.getElementById("form-editor-quiz");
+                form.style.display = "none";
+                form.reset();
+                $("#output-quiz").attr('src', '');
+                handleOutputImage();
+            })
+
+            $("#btn-close-alert-answer").click(function () {
+                $('#alert-max-answer').hide()
+            })
+
+            $("#form-editor-question").submit(function(event) {
+                event.preventDefault()
+            }).validate({
+                submitHandler: function(form) {
+                    const answerAmount = document.getElementsByName("is-correct").length;
+                    const formData = new FormData(form)
+                    formData.delete("duration")
+                    formData.delete("is-correct")
+                    for(let i = 1; i <= answerAmount; i++) {
+                        formData.delete(`answer-content-${i}`);
+                    }
+                    saveQuestion(formData);
+                    return false;
+                }
+            });
+
+            $("#image-title-quiz").change(function () {
+                $('#output-quiz').attr("src",window.URL.createObjectURL(this.files[0]));
+                $("#label-output-quiz").show()
+            })
+
+            $("#form-editor-quiz").submit(function(event) {
+                event.preventDefault()
+            }).validate({
+                submitHandler: function(form) {
+                    $('#alert-waiting').show()
+                    $(".loading-icon").removeClass("hide");
+                    $(".button").attr("disabled", true);
+                    $.ajax({
+                        type: "POST",
+                        enctype: 'multipart/form-data',
+                        processData: false,
+                        contentType: false,
+                        url: "/quiz/api/save-quiz",
+                        data: new FormData(form),
+                        cache: false,
+                        timeout: 600000,
+                        success: function (response) {
+                            console.log(response)
+                            if (response.success) {
+                                $('#alert-waiting').hide()
+                                $(".loading-icon").addClass("hide");
+                                $(".button").attr("disabled", false);
+                                $(form).hide();
+                                const data = response.data
+                                const image = data.titleImage
+                                $('#quiz-view-image').attr('src', image)
+                                $('#btn-edit-quiz').html(`<b><i class="fa fa-pencil" aria-hidden="true"></i> ${data.name} </b>`)
+                                if (data.status === 'private' || data.status === 'Private') {
+                                    $('#label-status').html('<i class="fa fa-eye-slash" aria-hidden="true"></i> Private')
+                                } else {
+                                    $('#label-status').html('<i class="fa fa-eye" aria-hidden="true"></i> Public')
+                                }
+                                const gradeOverview = $('#grade-overview')
+                                if (data.fromGrade === data.toGrade) {
+                                    gradeOverview.html(`<i class="fa fa-graduation-cap" aria-hidden="true"></i> ${data.fromGrade} grade `)
+                                } else {
+                                    gradeOverview.html(`<i class="fa fa-graduation-cap" aria-hidden="true"></i> ${data.fromGrade} - ${data.toGrade} grade`)
+                                }
+                                const subjectOverview = $('#subject-overview')
+                                subjectOverview.html(`<i class="fa fa-book" aria-hidden="true"></i> ${data.subject.name}`)
+
+                                $('#output-quiz').attr('src', image)
+                                $('#default-output-quiz').attr('src', image)
+                                handleOutputImage();
+                            }
+                        },
+                        error: function (e) {
+                            console.log("ERROR : ", e);
+                        }
+                    });
+                    return false;
+                }
+            });
+
+            $(function (){
+                // initAppendElement();
+                new OnclickHandler($('.btn-delete-question'), 'btn-delete-question');
+                new OnclickHandler($('.btn-edit-question'), 'btn-edit-question');
+                selectDurationOnChangeHandler();
+                initOverview();
+                handleOutputImage();
+            })
+
+
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <nav class="navbar navbar-expand-lg navbar-light myClass" style="background-color: #8C2B88;">
+        <a role="button" type="button" class="navbar-brand text-white" th:href="@{/home}"><i class="fa fa-chevron-left" aria-hidden="true"></i> Back</a>
+        <a role="button" id="btn-publish" class="btn btn-primary ml-auto pl-3 pr-3" style="border-radius: 10px;background-color: #BA91FF;border-color: #BA91FF;">Publish</a>
+    </nav>
+    <div id="main" class="container-fluid mt-5 myClass">
+        <div class="row m-5">
+            <div class="col-sm-8">
+                <div class="card" style="background-color: rgba(123, 5, 153, 0.72);;">
+                    <div style="margin: 50px;">
+<!--                        <p style="color: white;">Teleport question</p>-->
+<!--                        <form class="form-inline mb-5 pr-0">-->
+<!--                            <div class="row w-100 pr-0">-->
+<!--                                <div class="col-sm-10">-->
+<!--                                    <input class="form-control w-100" type="search" placeholder="Search" aria-label="Search">-->
+<!--                                </div>-->
+<!--                                <div class="col-sm-2 pr-0">-->
+<!--                                    <button class="btn btn-light w-100" type="button">Search</button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </form>-->
+                        <p style="color: white;">Create a new question</p>
+                        <label for="btn-new-question">
+                            <button type="button" id="btn-new-question" onclick="showQuestionEditor(false)" style="background-color: #6B3E8E;color: white; border-color: #6B3E8E;padding: 10px;border-radius: 10px;">New Question</button>
+                        </label>
+                        <!--                            <div class="card">-->
+                        <!--                                <div class="btn-group m-5" style="flex-wrap:wrap" role="group">-->
+                        <!--                                    <button type="button" onclick="showQuestionEditor('multiple-choice')" class="btn btn-light m-2" style="background-color: white;border-radius: 10px;border-color: white;width: 30%;"><b><img th:src="@{/images/choice.png}" class="img-fluid" alt="" src=""><br>Multiple choice</b></button>-->
+                        <!--                                    <button type="button" onclick="showQuestionEditor('checkbox')" class="btn btn-light m-2" style="background-color: white;border-radius: 10px;border-color: white;width: 30%;"><b><img th:src="@{/images/check.png}" class="img-fluid" alt="" src=""><br>Checkbox</b></button>-->
+                        <!--                                    <button type="button" onclick="showQuestionEditor('fill-blank')" class="btn btn-light m-2" style="background-color: white;border-radius: 10px;border-color: white;width: 30%;"><b><img th:src="@{/images/blank.png}" class="img-fluid" alt="" src=""><br>Fill in the blank</b></button>-->
+                        <!--                                </div>-->
+                        <!--                            </div>-->
+                        <div class="card">
+                            <div class="btn-group ml-5 mr-5 mt-5" style="flex-wrap:wrap" role="group" id="question-section">
+                                <div th:each="question, i: ${quiz.getQuestions()}" class="card w-100 mb-3" th:id="'section-' + ${i.index + 1}" style="background-color: #E7E7E7;">
+                                    <div class="card ml-auto mr-auto mt-3 mb-3" style="width: 90%;">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <img th:src="@{/images/choice.png}" width="15%" class="img-fluid m-1" alt="" src="">
+                                                <label style="padding-top:10px;margin-left: 10px;font-size: 20px;"><b th:id="'question-title-' + ${i.index + 1}" th:text="'Question ' + ${i.index + 1}"></b></label>
+                                            </div>
+                                            <div class="col-sm-6 text-right">
+                                                <button type="button" th:data-edit="${i.index + 1}" th:data-id="${question.getPrimaryKey().getId()}" th:id="'btn-edit-' + ${question.getPrimaryKey().getId()}" style="background-color: #CC9CFD;border-color: #CC9CFD;" class="btn btn-dark mt-1 mr-2 btn-edit-question"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                                <!--                                                    <button type="button" style="background-color: #CC9CFD;border-color: #CC9CFD;" class="btn btn-dark mt-1 mr-2"><i class="fa fa-files-o" aria-hidden="true"></i></button>-->
+                                                <button type="button" th:data-delete="${i.index + 1}" th:data-id="${question.getPrimaryKey().getId()}" th:id="'btn-delete-question-' + ${question.getPrimaryKey().getId()}" style="background-color: #CC9CFD;border-color: #CC9CFD;" class="btn btn-dark mt-1 mr-2 btn-delete-question"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p th:id="'question-content-' + ${question.getPrimaryKey().getId()}" style="font-size: 20px;margin-left: 40px;margin-right: 40px;text-align: center;" th:text="${question.getContent()}"></p>
+                                        <hr>
+                                        <div  style="display: block; padding-left: 100px;padding-right: 100px">
+                                            <div class="answer-field" th:each="answer : ${question.getAnswers()}">
+                                                <div th:if="${answer.getIsCorrect()}" class="answer-maker true-answer" th:name="'answer-field-' + ${question.getPrimaryKey().getId()}"></div>
+                                                <div th:unless="${answer.getIsCorrect()}" class="answer-maker false-answer" th:name="'answer-field-' + ${question.getPrimaryKey().getId()}"></div>
+                                                <span th:text="${answer.getContent()}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="form-group m-0">
+                                            <select th:data-id="${question.getPrimaryKey().getId()}" class="form-control w-25" style="border-color: black;">
+                                                <option th:each="time : ${times}" th:value="${time.getId()}" th:text="${time.getText()}"
+                                                        th:selected="${time.getId() == question.getDuration()}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card text-center p-5 ml-5 mr-5" style="background: linear-gradient(0deg, rgba(197, 19, 19, 0.2), rgba(197, 19, 19, 0.2)), linear-gradient(89.13deg, #BA91FF -3.15%, rgba(196, 196, 196, 0) 101.33%);">
+                    <label class="quiz-detail" style="background-color: white;padding: 20px;"> <img id="quiz-view-image" style="width: 50%" th:src="${quiz.getTitleImage()}" alt="" src=""><br></label>
+                    <button id="btn-edit-quiz" type="button" class="btn btn-primary quiz-detail" style="background-color: #9C39FF; border-color: #9C39FF;" th:text="${quiz.getName()}"><b><i class="fa fa-pencil" aria-hidden="true"></i></b></button>
+                    <div style="text-align: left;color: #8C2B88;margin-top: 10px;">
+                        <label th:if="${quiz.getStatus().equalsIgnoreCase('private')}" id="label-status" class="quiz-detail" style="margin-right: 20px;"><i class="fa fa-eye-slash" aria-hidden="true"></i> Private </label>
+                        <label th:unless="${quiz.getStatus().equalsIgnoreCase('private')}" id="label-status" class="quiz-detail" style="margin-right: 20px;"><i class="fa fa-eye" aria-hidden="true"></i> Public </label>
+                    </div>
+                    <hr style="background-color: black;">
+                    <div style="color: white; text-align: left;">
+                        <a class="quiz-detail" href="#"><h5 id="grade-overview" th:text="${quiz.getFromGrade()} + '/' + ${quiz.getToGrade()}"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Grade</h5></a>
+                        <a class="quiz-detail" href="#"><h5 id="subject-overview" th:text="${quiz.getSubject().getName()}"><i class="fa fa-book" aria-hidden="true"></i> </h5></a>
+                    </div>
+                </div>
+                <div class="container-fluid mt-3 p-0 text-center">
+                    <img th:src="@{/images/create1.png}" class="img-fluid" alt="" src="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <form class="form" action="#" method="post" enctype="multipart/form-data" id="form-editor-question">
+        <div id="question-editor" class="container-fluid modal myClass">
+            <div class="container-fluid p-5">
+                <div class="card">
+                    <div class="card-header p-0" style="text-align: center">
+                        <label style="font-size: 25px;padding-left: 300px;padding-right: 300px;margin-bottom: 0;"><b>Question Editor</b></label>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-11 text-right">
+                                <div class="btn-group fadeInRight" role="group" aria-label="Basic example">
+                                    <div class="form-group m-0">
+                                        <select id="duration" name="duration" class="form-control" style="border-color: black;">
+                                            <option th:each="time : ${times}" th:value="${time.getId()}" th:text="${time.getText()}"
+                                                    th:selected="${time.getId() == 15}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="replace">
+                            <div id="multiple-choice">
+                                <label class="myClass" style="color: #8C2B88;" for="question-content"><b>Write your question here</b></label>
+                                <div class="row fadeInRight">
+                                    <div class="col-sm-11">
+                                        <input type="hidden" value="multipleChoice" id="type-question">
+                                        <textarea required class="form-control" id="question-content" rows="3"></textarea>
+                                    </div>
+                                    <div class="col-sm-1 pt-4 pb-4">
+                                        <input type="file" name="image-question" accept="image/*" id="image-question" hidden/>
+                                        <label for="image-question"><i class="bi bi-images"></i></label>
+                                    </div>
+                                </div>
+                                <div class="row mt-3 answer fadeInRight">
+                                    <div class="col-sm-1 text-center pt-3 pb-3">
+                                        <label class="container-selector">
+                                            <input type="radio" name="is-correct" id="answer-checkbox-1" checked="checked">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-10 pt-3 pb-3">
+                                        <input required class="form-control pt-4 pb-4" name="answer-content-1" type="text" id="answer-content-1" placeholder="Your answer here">
+                                    </div>
+                                </div>
+                                <div class="row mt-3 answer fadeInRight">
+                                    <div class="col-sm-1 text-center pt-3 pb-3">
+                                        <label class="container-selector">
+                                            <input type="radio" name="is-correct" id="answer-checkbox-2">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-10 pt-3 pb-3">
+                                        <input required type="text" class="form-control pt-4 pb-4" name="answer-content-2" id="answer-content-2" placeholder="Your answer here">
+                                    </div>
+                                </div>
+                                <div class="row mt-3 fadeInRight" id="add-answer">
+                                    <div class="col-sm-10 pt-3 pb-3">
+                                        <button id="btn-add-answer" type="button" class="btn btn-light pt-2 pb-2" style="border-color: rgba(0,0,0,.125);color: #495057;">Add answer option</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="margin-left: 20px;margin-right: 20px;background-color: rgb(150, 150, 150);">
+                    <div class="myClass" style="text-align: center;margin-bottom: 10px;">
+                        <button type="submit" class="btn btn-primary pl-4 pr-4" style="background-color: #9C39FF; border-color: #9C39FF;border-radius: 10px;"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</button>
+                        <button onclick="closeQuestionEditor()" type="button" class="btn btn-light pl-4 pr-4" style="border-radius: 10px;background-color: rgb(236, 235, 235);">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" th:value="-1" id="id-question">
+        <input type="hidden" id="order-question">
+    </form>
+    <form class="form modal" method="post" action="#" id="form-editor-quiz"  enctype="multipart/form-data">
+        <div class="container m-auto w-25 p-4 myClass"  style="margin-top: 10px !important;background-color: white; border: 1px solid black;margin-bottom: 10px !important;">
+            <input type="hidden" th:value="${quiz.getId()}" name="id">
+            <h3 style="color: #8C2B88;"><img th:src="@{/images/createquiz1.png}" class="img-fluid" alt=""> QUIZ DETAILS</h3>
+            <div class="fadeInRight" style="margin-top: 40px;">
+                <p style="color: #6B3E8E;">Add a title</p>
+                <input required type="text" class="form-control" name="name" th:value="${quiz.getName()}" id="title" aria-describedby="title" placeholder="Enter title">
+            </div>
+            <div class="editor" style="margin-top: 20px;">
+                <p style="color: #6B3E8E;">Add a title image</p>
+                <input required type="file" name="fileQuiz" accept="image/*" id="image-title-quiz" hidden/>
+                <div style="position: relative; width: 100%;">
+                    <label for="image-title-quiz" style="position: absolute; height: 175px; background-color: rgb(236, 235, 235);padding: 20px;width: 100%;text-align: center;border: 1px dashed black; border-radius: 10px;"><img id="default-output-quiz" style="width: 30%; height: 50%" class="output-image" th:src="${quiz.getTitleImage()}" alt="" src=""><br></label>
+                    <label id="label-output-quiz" for="image-title-quiz" style="position: absolute; height: 175px; background-color: rgb(236, 235, 235);padding: 20px;width: 100%;text-align: center;border: 1px dashed black; border-radius: 10px;"><img style="width: 30%; height: 50%" class="output-image" id="output-quiz" alt="" th:src="${quiz.getTitleImage()}"><br></label>
+                </div>
+            </div>
+            <div class="editor" style="position: relative;margin-top: 60%;">
+                <p style="color: #6B3E8E;margin-top: 20px;">Select grades</p>
+                    <div class="form-group w-50">
+                        <select required class="form-control" id="from-grade" name="fromGrade">
+                            <option value="" disabled selected>From</option>
+                            <option th:each="grade : ${grades}" th:value="${grade.getId()}" th:text="${grade.getId()}"
+                                th:selected="${grade.getId().equalsIgnoreCase(quiz.getFromGrade())}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group w-50">
+                        <select required class="form-control" id="to-grade" name="toGrade">
+                            <option value="" disabled selected>To</option>
+                            <option th:each="grade : ${grades}" th:value="${grade.getId()}" th:text="${grade.getId()}"
+                                    th:selected="${grade.getId().equalsIgnoreCase(quiz.getToGrade())}"></option>
+                        </select>
+                    </div>
+            </div>
+            <div class="editor">
+                <p style="color: #6B3E8E;margin-top: 20px;">Subject</p>
+                <div class="form-group">
+                    <select class="form-control" id="subject" name="subject">
+                        <option th:each="subject : ${subjects}" th:value="${subject.getName()}" th:text="${subject.getName()}"
+                                th:selected="${subject.getName().equalsIgnoreCase(quiz.getSubject().getName())}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="editor">
+                <p style="color: #6B3E8E;margin-top: 20px;">Who can see this quiz?</p>
+                <div class="form-group">
+                    <select class="form-control" id="status" name="status">
+                        <option selected value="public"><i class="fa fa-eye" aria-hidden="true"></i> Public, visible to everyone</option>
+                        <option value="private" th:selected="${quiz.getStatus().equalsIgnoreCase('private')}"><i class="fa fa-eye-slash" aria-hidden="true"></i> Private, visible to you</option>
+                    </select>
+                </div>
+            </div>
+            <div class="editor" style="margin-top: 30px;text-align: center;">
+                <button type="submit" class="btn btn-primary pl-4 pr-4" style="background-color: #9C39FF; border-color: #9C39FF;border-radius: 10px;"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</button>
+                <button type="button" id="btn-close-quiz-editor" class="btn btn-light pl-4 pr-4" style="border-radius: 10px;background-color: rgb(236, 235, 235);">Cancel</button>
+            </div>
+        </div>
+    </form>
+    <input type="hidden" th:value="${quiz.getNumberQuestions()}" id="number-questions">
+    <input type="hidden" th:value="${quiz.getId()}" id="id-quiz">
+    <input type="hidden" id="is-update-question">
+    <div class="modal" id="alert-max-answer">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body text-center mb-5">
+                    <img th:src="@{/images/wrong.png}" class="img-responsive" />
+                    <p>Can't create more than 5 answer.</p>
+                    <div class="btn-group">
+                        <button id="btn-close-alert-answer" type="button" class="btn btn-secondary btn-lg mr-2 rounded-lg" >OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="alert-waiting">
+        <button class="button">
+            <i class="loading-icon fa fa-spinner fa-spin hide"></i>
+            <span class="btn-txt">Please waiting...</span>
+        </button>
+    </div>
+</div>
+</body>
+</html>

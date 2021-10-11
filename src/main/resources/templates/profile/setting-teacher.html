@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/admin-teacher}">
+<head>
+    <link rel="stylesheet" th:href="@{/css/setting.css}" />
+    <script type="text/javascript" th:src="@{/scripts/edit-profile.js}"></script>
+    <title>Setting</title>
+</head>
+<body>
+<div layout:fragment="content" style="height: 100%;">
+    <div style="display: flex;justify-content: center;align-items: center;">
+        <div id="change-form">
+            <div id="header-setting">
+                <i class="fas fa-cogs" style="margin-right: 10px;font-size: 45px;color: cornflowerblue;"></i>Settings
+            </div>
+            <div class="content-setting">
+                <div class="account-setting">
+                    <span
+                    ><i
+                            class="fas fa-user-circle"
+                            style="margin-right: 5px"
+                    ></i
+                    ></span>
+                    <span>Account</span>
+                </div>
+                <hr />
+<!--                <div class="language">-->
+<!--                    <i class="fas fa-language"></i>-->
+<!--                    <span>Language</span>-->
+<!--                </div>-->
+<!--                <hr />-->
+<!--                <div class="input-language">-->
+<!--                    <input type="text" placeholder="Select" value="English" />-->
+<!--                    <i class="fas fa-caret-down" style="float: right;line-height: 1.5;"></i>-->
+<!--                </div>-->
+                <form th:action="@{~/quiz/setting/update-password}" method="post">
+                    <div class="password-setting">
+                        <i class="fas fa-lock"></i>
+                        <span>Password</span>
+                    </div>
+                    <hr />
+                    <div class="input-password">
+                        <span>New password</span>
+                        <br />
+                        <input onchange="validatePassword()" type="password" name="newpassword" id="new-password"/>
+                    </div>
+                    <div class="input-password-again">
+                        <span>New password again</span>
+                        <br />
+                        <input onchange="validatePassword()" type="password" name="passwordagain" id="again-password"/>
+                    </div>
+                    <p id="message" style="color: red"></p>
+                    <div>
+                        <button disabled="disabled" id="btn-change-password" class="btn-password" type="submit"  >
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

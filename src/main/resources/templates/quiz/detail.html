@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/home}">
+<head>
+    <title>Detail to play</title>
+    <script>
+        $(document).ready(function () {
+            $('#btn-practice').click(() => {
+                const idQuiz = $('#btn-practice').data('id')
+                // console.log(idQuiz)
+                location.assign(`/quiz/join/practice/${idQuiz}`)
+            })
+        })
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="card ml-auto mr-auto" style="width: 23rem;margin-top: 50px;margin-bottom: 50px">
+        <img class="card-img-top" th:src="@{/images/hinh2.jpg}" alt="Card image cap">
+        <div style="margin-left: auto; margin-bottom: 0px;">
+<!--            <label style="padding: 5px;background-color: #CC9CFD; border-radius: 5px;">23 plays</label>-->
+            <label style="padding: 5px;background-color: #CC9CFD; border-radius: 5px;" th:text="${quiz.getNumberQuestions()} + ' questions'"></label>
+        </div>
+
+        <div class="card-body mt-0 pt-0 mb-0 pb-0">
+            <h4 class="card-title">Anime</h4>
+            <h6 class="card-text"> <i class="fa fa-smile-o" aria-hidden="true" th:text="'Author ' + ${author}"></i> </h6>
+            <h6 class="card-text"><i class="fa fa-graduation-cap" aria-hidden="true" th:text="' Grade: ' +${quiz.getFromGrade()}+' - '+${quiz.getToGrade()}"></i></h6>
+        </div>
+        <br>
+        <div style="display: flex">
+            <button class="btn btn-secondary mr-3 mt-0 mb-2" ><i class="fa fa-share-alt" aria-hidden="true"></i> Share</button>
+        </div>
+
+        <ul class="list-group list-group-flush text-center">
+            <li class="list-group-item">
+                <button type="button" th:data-id="${quiz.getId()}" id="btn-practice" class="btn btn-primary" style="background-color: #7B0599;border-color: #7B0599;">PRACTICE <i class="fas fa-play-circle-o" aria-hidden="true"></i></button>
+<!--                <button class="btn btn-primary" style="border-color: #7BCD67;background-color: #7BCD67;">CHALLENGE FRIENDS <i class="fa fa-users" aria-hidden="true"></i></button>-->
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+
+</html>

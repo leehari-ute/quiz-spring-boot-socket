@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/home}">
+<head>
+    <title>Waiting</title>
+    <link rel="stylesheet" th:href="@{/css/room-host.css}" type="text/css">
+    <script type="text/javascript" th:inline="javascript">
+        $(document).ready(() => {
+            // Ajax request csrf
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+
+            $(document).ajaxSend(function(e, xhr, options) {
+                xhr.setRequestHeader(header, token);
+            });
+            $('#btn-exit').click(function () {
+                disconnect();
+                location.assign("/quiz/home");
+            })
+
+            connect();
+
+            $(function () {
+                code = $('#code').val()
+                idGame = parseInt($('#game').val())
+            });
+        })
+    </script>
+</head>
+<body id="content" style="background-color: black; color: white">
+<div layout:fragment="content">
+    <div class="container-fluid" style="margin-top: 40px;padding-left: 100px;padding-right: 100px;">
+        <div class="row">
+            <div class="col">
+                <input type="hidden" id="name-player" th:value="${name}">
+                <input type="hidden" id="id-player" th:value="${idPlayer}">
+                <input th:value="${game.getCode()}" class="textdis" type="text" disabled="disabled">
+                <input type="hidden" th:value="${game.getId()}" id="game">
+
+                <label for="music" style="margin-right: 10px;color: white;margin-left: 20px;"><i style="margin-right: 10px;"class="fa fa-music" aria-hidden="true"></i>Music</label>
+                <input style="border-radius: 15px;"id="music" type="checkbox" data-on=" " data-off=" " data-onstyle="success" checked data-toggle="toggle" data-size="xs" data-style="ios">
+
+            </div>
+            <div class="col-6">
+                <p><span class="blink">Waiting for your friends to join the game...</span></p>
+            </div>
+            <div class="col">
+                <button type="button" id="btn-exit" class="btn btn-dark" style="margin-left: 100%; margin-bottom: 50px;"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+
+        <div class="formmain">
+            <div class="card p-4">
+                <hr style="background-color: white;">
+                <div style="text-align: center;">
+                    <input type="hidden" id="total" th:value="${players.size()}">
+                    <label id="total-players" style="background-color: rgb(75, 74, 74);padding: 5px 20px; border-radius: 10px;"><i class="fa fa-users" aria-hidden="true"></i> </label>
+                </div>
+                <div th:id="${game.getId()}" class="card-deck text-center mt-3">
+                    <div th:each="player: ${players}" th:id="${player.getId()}" class="card" style="background-color: black;">
+                        <img src="https://res.cloudinary.com/leehari/image/upload/v1631856576/z8k64on2f76wtllsdaml.png" style="width: 20%;margin-left: auto;margin-right: auto;" class="img-fluid mt-3" alt="">
+                        <label th:text="${player.getName()}"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

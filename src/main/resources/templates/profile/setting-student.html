@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{/layout/home}">
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/css/setting.css}" />
+    <script type="text/javascript" th:src="@{/scripts/edit-profile.js}"></script>
+    <title>Setting</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <section id="tabs">
+        <nav>
+            <div class="navbar navbar-expand-lg navbar-light" style="background-color: #8C2B88;">
+                <a class="navbar-brand text-white ml-3" th:href="@{/home}">SixQuiz</a>
+                <div class="nav nav-tabs nav-fill" role="tablist" style="border-bottom: none;">
+                    <a class="nav-item nav-link active" th:href="@{/home}"  aria-controls="nav-home" aria-selected="true"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+                    <a class="nav-item nav-link"  aria-controls="nav-act" aria-selected="false"><i class="fa fa-clock-o" aria-hidden="true"></i> Activity</a>
+                    <div sec:authorize="isAuthenticated()" style="margin-left: 20px">
+                        <a th:if="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/dashboard}" class="btn btn-primary pl-4 pr-4" style="background-color: #500030;border-color: #500030;border-radius: 10px;"><i class="fa fa-plus-circle" style="margin-right: 5px" aria-hidden="true"></i>Dashboard </a>
+                        <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/editor-quiz/create}" class="btn btn-primary pl-4 pr-4" style="background-color: #500030;border-color: #500030;border-radius: 10px;"><i class="fa fa-plus-circle" style="margin-right: 5px" aria-hidden="true"></i> Create</a>
+                    </div>
+                </div>
+                <form class="form-inline my-2 my-lg-0 ml-auto">
+                    <input id="search-input" class="form-control" style="border-radius: 5px;width: 700px;" type="search" placeholder="Search" aria-label="Search">
+                    <button id=btnSearch type="submit">Search</button>
+                </form>
+                <div class="nav-item dropdown ml-3" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-user text-white" aria-hidden="true"></i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a th:if="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/dashboard/library}" class="dropdown-item" >My Library</a>
+                        <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/home/profile}" class="dropdown-item" >Profile</a>
+                        <a th:unless="${user.getRole().equalsIgnoreCase('TEACHER')}" th:href="@{/home/setting}" class="dropdown-item" >Setting</a>
+                        <a class="dropdown-item" th:href="@{/auth/logout}">Log out</a>
+                    </div>
+                </div>
+                <a sec:authorize="isAuthenticated()" href="#"><i class="fa fa-bell text-white ml-2 mr-3" aria-hidden="true"></i></a>
+            </div>
+            <div style="height: 100%;">
+                <div style="display: flex;justify-content: center;align-items: center;">
+                    <div id="change-form">
+                        <div id="header-setting">
+                            <i class="fas fa-cogs" style="margin-right: 10px;font-size: 45px;color: cornflowerblue;"></i>Settings
+                        </div>
+                        <div class="content-setting">
+                            <div class="account-setting">
+                    <span
+                    ><i
+                            class="fas fa-user-circle"
+                            style="margin-right: 5px"
+                    ></i
+                    ></span>
+                                <span>Account</span>
+                            </div>
+                            <hr />
+<!--                            <div class="language">-->
+<!--                                <i class="fas fa-language"></i>-->
+<!--                                <span>Language</span>-->
+<!--                            </div>-->
+<!--                            <hr />-->
+<!--                            <div class="input-language">-->
+<!--                                <input type="text" placeholder="Select" value="English" />-->
+<!--                                <i class="fas fa-caret-down" style="float: right;line-height: 1.5;"></i>-->
+<!--                            </div>-->
+                            <form th:action="@{~/quiz/setting/update-password}" method="post">
+                                <div class="password-setting">
+                                    <i class="fas fa-lock"></i>
+                                    <span>Password</span>
+                                </div>
+                                <hr />
+<!--                                <div class="input-password">-->
+<!--                                    <span>Old password</span>-->
+<!--                                    <br />-->
+<!--                                    <input type="password" name="oldPassword" id="old-password"/>-->
+<!--                                </div>-->
+                                <div class="input-password">
+                                    <span>New password</span>
+                                    <br />
+                                    <input onchange="validatePassword()" type="password" name="newpassword" id="new-password"/>
+                                </div>
+                                <div class="input-password-again">
+                                    <span>New password again</span>
+                                    <br />
+                                    <input onchange="validatePassword()" type="password" name="passwordagain" id="again-password"/>
+                                </div>
+                                <p id="message" style="color: red"></p>
+                                <div>
+                                    <button disabled="disabled" id="btn-change-password" class="btn-password" type="submit"  >
+                                        Update Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </section>
+</div>

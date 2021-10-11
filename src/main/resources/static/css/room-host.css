@@ -1,0 +1,141 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap");
+
+body {
+    background-color: black;
+    font-family: "Poppins", sans-serif;
+    font-weight: 300
+}
+
+
+.card {
+    border: none;
+    background-color: #7B0599;
+    color: #fff;
+}
+
+.fonts i {
+    margin-right: 15px;
+    font-size: 18px;
+    color: #cac7c7
+}
+
+.button {
+    height: 50px;
+    font-size: 24px;
+    background-color: #7BCD67;
+    border: none;
+    margin-top: 25px;
+    width: 26%;
+    margin-left: 37%;
+    margin-right: 37%;
+}
+
+.button:hover {
+    background-color: #6c04e4
+}
+
+.form {
+    position: relative;
+    margin-bottom: 10px;
+
+}
+
+.form input {
+    height: 52px;
+    text-indent: 22px;
+}
+
+.form i {
+    position: absolute;
+    color: #00000052;
+    left: 10px;
+    top: 16px;
+    font-size: 20px
+}
+.textdis{
+    color: #000000;
+    background-color: #C4C4C4;
+    text-align: center;
+    width: 120px;
+    border-radius: .25rem;
+}
+
+p{
+    color: white;
+    font-weight: bold;
+}
+
+
+.toggle-on.btn-xs {
+    padding-right: .8rem;
+    background-color: #8C2B88;
+}
+.col-6{
+    text-align: center;
+}
+.cardform{
+    width: 30%;
+    margin-left: 35%;
+    margin-right: 35%;
+    background-color: #500030;
+    text-align: center;
+    border-radius: 15px;
+}
+.cardinput{
+    margin: 5px 40px 10px 40px;
+}
+.blink {
+    animation: blink 3s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+        transform: scale(2);
+    }
+    51% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20rem; color: #8C2B88;}
+.toggle.ios .toggle-handle { border-radius: 20rem; color: #8C2B88;}
+
+.card-deck .card {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex: 1 0 0%;
+    flex: 1 0 0%;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    margin-right: 15px;
+    margin-bottom: 0;
+    margin-left: 15px;
+    border-radius: 15px;
+}
+.btn1{
+    background-color: #7B0599;
+}
+.btn2{
+    background-color: #8C2B88;
+}
+.btn3{
+    background-color: #6B3E8E;
+}
+.btn4{
+    background-color: #552323;
+}
+.btn5{
+    background-color: #500030;
+}
+.btn6{
+    background-color: #6981D6;
+}
+

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/home}" xmlns:form="http://www.w3.org/1999/html">
+<head>
+    <title>Create Quiz</title>
+    <script type="text/javascript" th:src="@{/scripts/editor-quiz.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/home.css}" type="text/css">
+    <script type="text/javascript" th:inline="javascript">
+        $(document).ready(() => {
+        });
+        const setSubject = (btn) => {
+            $("#subject").val(btn.value);
+        }
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div sec:authorize="isAuthenticated()" class="container m-auto w-25 p-4 myClass" style="display: block;background-color: rgba(247, 244, 244, 0.986);margin-top: 100px !important;">
+        <form class="form" action="" method="post" th:action="@{~/quiz/editor-quiz}" th:object="${quiz}">
+            <h3 style="color: #8C2B88;"><img th:src="@{/images/createquiz1.png}" class="img-fluid" alt="click" src=""> CREATE A QUIZ</h3>
+            <div class="form-group editor">
+                <label for="quiz-name" style="color: #6B3E8E;">Quiz's name</label><br>
+                <input type="text" name="name" th:field="*{name}" id="quiz-name" class="form-control" required>
+            </div>
+            <div class="editor">
+                <label for="btn-subject" style="color: #6B3E8E;">Choose relevant subject</label><br>
+                <div class="btn-toolbar text-center" role="toolbar" aria-label="Toolbar with button groups">
+                    <div th:each="subject: ${subjects}"  class="btn-group" role="group">
+                        <button th:value="${subject.getName()}" type="button" onclick="setSubject(this)" id="btn-subject" class="btn btn-danger pl-4 pr-4 m-2" style="color:black;background-color: #CC9CFD;border-radius: 10px;border-color: #CC9CFD;" th:text="${subject.getName()}"></button>
+                    </div>
+                    <label for="subject">
+                        <input type="text" style="display: none; user-focus: ignore" id="subject" th:field="*{subject}" name="subject" value="Other">
+                    </label>
+                </div>
+            </div>
+            <div class="editor" style="margin-top: 10px;">
+                <button type="submit" class="btn btn-primary w-100" style="background-color: #9C39FF; border-color: #9C39FF;">Next</button>
+                <button type="button" onclick="history.back()" class="btn btn-light w-100">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
